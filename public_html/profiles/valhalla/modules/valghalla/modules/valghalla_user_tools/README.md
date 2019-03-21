@@ -7,7 +7,8 @@ view PSN numbers and users cannot see volunteer from other parties.
 
 Licence and copyright
 ---------------------
-Valghalla is Copyright (c) 2012 OS2 - Offentligt Digitaliseringsfællesskab, Denmark
+Valghalla is Copyright (c) 2012 OS2 - Offentligt Digitaliseringsfællesskab,
+Denmark
 <http://os2web.dk/>
 
 Valghalla is free software: you can redistribute it and/or modify

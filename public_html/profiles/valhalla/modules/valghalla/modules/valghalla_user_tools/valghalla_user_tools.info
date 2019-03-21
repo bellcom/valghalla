@@ -1,8 +1,7 @@
 name = Valghalla User Tools
+description = User tools set for vaghalla solution.
 core = 7.x
 package = Valghalla
-version = 7.x-1.0
-project = valghalla_user_tools
 dependencies[] = admin_views
 dependencies[] = features
 dependencies[] = node_reference

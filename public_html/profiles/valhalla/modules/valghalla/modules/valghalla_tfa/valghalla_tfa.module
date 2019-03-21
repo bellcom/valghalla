@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Code for the Valghalla TFA Extension module feature.
@@ -22,9 +23,12 @@ function valghalla_tfa_tfa_api() {
  * Create TfaTrustedBrowser plugin.
  *
  * @param array $context
- * @return TfaTrustedBrowser
+ *   Context data.
+ *
+ * @return object
+ *   object with plugin
  */
-function valghalla_tfa_trusted_ip_create($context) {
+function valghalla_tfa_trusted_ip_create(array $context) {
   return new TfaTrustedIp($context);
 }
 
@@ -32,7 +36,7 @@ function valghalla_tfa_trusted_ip_create($context) {
  * Implements hook_form_FORM_ID_alter().
  */
 function valghalla_tfa_form_tfa_admin_settings_alter(&$form, &$form_state, $form_id) {
-// Add cookie domain field to TFA admin settings.
+  // Add cookie domain field to TFA admin settings.
   $form['valghalla_tfa_trusted_ip'] = array(
     '#type' => 'textfield',
     '#title' => t('Trusted IP list (bypassed TFA check)'),
@@ -40,8 +44,8 @@ function valghalla_tfa_form_tfa_admin_settings_alter(&$form, &$form_state, $form
     '#description' => t('Comma separated. Ex. 192.168.1.1,192.168.2.1'),
     '#states' => array(
       'visible' => array(
-        ':input[name="tfa_login[valghalla_tfa_trusted_ip]"]' => array('checked' => TRUE)
-      )
+        ':input[name="tfa_login[valghalla_tfa_trusted_ip]"]' => array('checked' => TRUE),
+      ),
     ),
   );
 
@@ -52,8 +56,8 @@ function valghalla_tfa_form_tfa_admin_settings_alter(&$form, &$form_state, $form
     '#description' => t('If the setup is mandatory user MUST setup the TFA before proceeding any further'),
     '#states' => array(
       'visible' => array(
-        ':input[name="tfa_login[valghalla_tfa_trusted_ip]"]' => array('checked' => TRUE)
-      )
+        ':input[name="tfa_login[valghalla_tfa_trusted_ip]"]' => array('checked' => TRUE),
+      ),
     ),
   );
 
@@ -78,39 +82,45 @@ function valghalla_tfa_admin_form_submit($form, &$form_state) {
   variable_set('valghalla_tfa_setup_mandatory', $form_state['values']['valghalla_tfa_setup_mandatory']);
 }
 
+/**
+ * Get user login function.
+ */
 function valghalla_tfa_user_login(&$edit, $account) {
   $account_data = tfa_basic_get_tfa_data($account);
   if ((empty($account_data) || !$account_data['status']) && user_access('setup own tfa')) {
     drupal_set_message(t('Opret venligst to faktor autentificering indstillinger'));
     unset($_GET['destination']);
     drupal_goto('user/' . $account->uid . '/security/tfa');
-  } else {
+  }
+  else {
     $_SESSION['tfa_is_setup'] = TRUE;
   }
 }
 
 /**
- * Implement hook_boot
- * 
- * Intended to forbid access to any of the pages, unless TFA is set up (unless TFA setup is not mandatory).
+ * Implements hook_boot().
+ *
+ * Intended to forbid access to any of the pages,
+ * unless TFA is set up (unless TFA setup is not mandatory).
  */
 function valghalla_tfa_boot() {
-  //proceeding only for non-anonymous user, which does NOT have flag in the session
+  // Proceeding only for non-anonymous user,
+  // which does NOT have flag in the session.
   if (php_sapi_name() != 'cli' && $GLOBALS['user']->uid != 0 && !$_SESSION['tfa_is_setup']) {
-    require_once(DRUPAL_ROOT . '/includes/common.inc');
-    require_once(DRUPAL_ROOT . '/includes/path.inc');
+    require_once DRUPAL_ROOT . '/includes/common.inc';
+    require_once DRUPAL_ROOT . '/includes/path.inc';
 
-    //is the TFA mandatory?
+    // Is the TFA mandatory?
     if (variable_get('valghalla_tfa_setup_mandatory', FALSE)) {
-      //loading required modules
+      // Loading required modules.
       drupal_load('module', 'user');
       drupal_load('module', 'tfa_basic');
 
-      //does use have tfa set up?
+      // Does use have tfa set up?
       $account_data = tfa_basic_get_tfa_data($GLOBALS['user']);
 
       if ((empty($account_data) || !$account_data['status']) && user_access('setup own tfa')) {
-        //checking that URL is not already tfa setup or logout
+        // Checking that URL is not already tfa setup or logout.
         if (strpos($_GET['q'], 'user/' . $GLOBALS['user']->uid . '/security/tfa') !== 0 && strpos($_GET['q'], 'user/logout') !== 0) {
           drupal_set_message(t('Opret venligst to faktor autentificering indstillinger'));
           unset($_GET['destination']);

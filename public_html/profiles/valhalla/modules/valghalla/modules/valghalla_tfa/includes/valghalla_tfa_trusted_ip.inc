@@ -1,22 +1,26 @@
 <?php
 
 /**
- * @file classes for Valghalla TFA
+ * @file
+ * Classes for Valghalla TFA.
  */
 
 /**
- * Class TfaTrustedBrowser
+ * Class TfaTrustedBrowser.
  */
 class TfaTrustedIp extends TfaBasePlugin implements TfaLoginPluginInterface {
 
   /**
+   * Check login allowance function by IP.
+   *
    * @return bool
+   *   TRUE if IP is in range, FALSE otherwise.
    */
   public function loginAllowed() {
     $trusted_ips = explode(',', variable_get('valghalla_tfa_trusted_ip'));
-    $remote_ip = $_SERVER['REMOTE_ADDR'];
+    $remote_ip = ip_address();
 
-    //is trusted IP?
+    // Is trusted IP?
     if (in_array($remote_ip, $trusted_ips)) {
       return TRUE;
     }

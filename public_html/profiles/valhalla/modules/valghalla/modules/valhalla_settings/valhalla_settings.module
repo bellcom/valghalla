@@ -1,13 +1,17 @@
 <?php
-/*
- * @author Juulia Devadze <juulia@bellcom.ee>
- * @copyright Bellcom Open Source aps.
+
+/**
+ * @file
+ * Valghalla setting module file.
  */
 
+/**
+ * Implements hook_menu().
+ */
 function valhalla_settings_menu() {
   $items['admin/valghalla/settings'] = array(
-    'title' => t('Settings'),
-    'description' => t('General valghalla settings'),
+    'title' => 'Settings',
+    'description' => 'General valghalla settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('valhalla_admin_settings_form'),
     'access arguments' => array('administer valghalla'),
@@ -17,6 +21,9 @@ function valhalla_settings_menu() {
   return $items;
 }
 
+/**
+ * Delarates valhalla_admin_settings_form form.
+ */
 function valhalla_admin_settings_form($form, &$form_state) {
   $form['valhalla_settings_polling_station_lock'] = array(
     '#type' => 'checkbox',
@@ -45,7 +52,7 @@ function valhalla_admin_settings_form($form, &$form_state) {
     '#default_value' => variable_get('valhalla_settings_municipality', 0),
   );
 
-  // Chose which role is the 'Partisekretær'
+  // Chose which role is the 'Partisekretær'.
   $form['valhalla_settings_party_secretary_role_id'] = array(
     '#title' => t('Vælg hvilken rolle, som er "Partisekretær"'),
     '#type' => 'select',
@@ -61,7 +68,7 @@ function valhalla_admin_settings_form($form, &$form_state) {
  * Implements hook_form_alter().
  */
 function valhalla_settings_form_alter(&$form, &$form_state, $form_id) {
-  if($form_id == 'user_profile_form'){
+  if ($form_id == 'user_profile_form') {
 
     $form['field_polling_station']['#disabled'] = TRUE;
 
@@ -114,6 +121,9 @@ function valhalla_settings_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
+/**
+ * Help function to lock field.
+ */
 function _valhalla_settings_lock_field(&$form, &$form_state) {
   $locked_fields = array('field_venue_teams', 'field_venue_team_members');
   foreach ($locked_fields as $field) {

@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Valghalla settings install file.
+ */
+
+/**
  * Try to assign the 'Partisekretær' role automatically in settings.
  */
 function valhalla_settings_update_7000() {

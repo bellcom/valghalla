@@ -2,9 +2,8 @@
 
 /**
  * @file
- * Install file for the Valghalla Nemlogin implementation module
+ * Install file for the Valghalla Nemlogin implementation module.
  */
-
 
 /**
  * Implements hook_schema().

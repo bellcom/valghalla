@@ -1,4 +1,4 @@
 name = Valghalla Nemlogin
+description = Nemlogin integration module for valghalla solution.
 core = 7.x
 package = Valghalla
-version = 7.x-1.0

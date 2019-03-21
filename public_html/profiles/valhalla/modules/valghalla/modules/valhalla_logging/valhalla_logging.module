@@ -1,66 +1,59 @@
 <?php
 
-/*
- *
- * @author Jesper Mathiassen <jm@bellcom.dk>
- * @copyright Bellcom Open Source aps.
+/**
+ * @file
+ * Valghalla logging module.
  */
 
 /**
- * Implementation of hook_menu()
- *
+ * Implements hook_menu().
  */
 function valhalla_logging_menu() {
-//      'title' => t('Page title'),
-    $items['valhalla_log'] = 
+  // 'title' => t('Page title'),.
+  $items['valhalla_log'] =
     $items['valhalla_log/%'] = array(
-//    'title arguments' => array(),
-//    'title callback' => 't',
-//      'description' => t('Your description goes here.'),
       'access callback' => TRUE,
-//    'access callback' => 'object_check_access',
-//    'access arguments' => array(1),
       'page arguments' => array(1),
       'page callback' => 'valhalla_logging_page',
-//    'block callback' => '',
-//    'menu_name' => NULL,
-//    'tab_parent' => NULL,
-//    'tab_root' => NULL,
-//    'file' => 'name_of_file.inc',
-//    'file path' => drupal_get_path('module', 'valhalla_logging'),
-//    'weight' => 0,
       'type' => MENU_NORMAL_ITEM,
-  );
+    );
   return $items;
 }
 
-function valhalla_logging_page($arg = false) {
+/**
+ * Logging page callback.
+ */
+function valhalla_logging_page($arg = FALSE) {
   header("Expires: 0");
   header("Cache-control: private");
   header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
   header("Content-Description: File Transfer");
   header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
   header("Content-disposition: attachment; filename=access_log.csv");
-  $query = db_select('valhalla_logging','v')->fields('v');
+  $query = db_select('valhalla_logging', 'v')->fields('v');
   if (is_numeric($arg)) {
-    $query->condition('nid',$arg,'=');
+    $query->condition('nid', $arg, '=');
   }
   $result = $query->execute();
   echo '"Time";"uid";"nid";"action";"info"';
   echo "\r\n";
   foreach ($result as $record) {
-    echo '"'. $record->time . '";';
-    echo '"'. $record->guilty . '";';
-    echo '"'. $record->victim . '";';
-    echo '"'. $record->action . '";';
-    echo '"'. $record->information . '"';
+    echo '"' . $record->time . '";';
+    echo '"' . $record->guilty . '";';
+    echo '"' . $record->victim . '";';
+    echo '"' . $record->action . '";';
+    echo '"' . $record->information . '"';
     echo "\r\n";
-//    print_r($record);
+    // print_r($record);
   }
 
-  die(); // Break for non-themed output
+  // Break for non-themed output.
+  die();
 }
 
+/**
+ * Implements hook_node_load().
+ */
 function valhalla_logging_node_load($nodes, $types) {
   if (in_array('volunteers', $types)) {
     global $user;
@@ -72,13 +65,17 @@ function valhalla_logging_node_load($nodes, $types) {
   }
 }
 
+/**
+ * Helper function to write log.
+ */
 function _valhalla_logging_do_log($who, $to, $what, $why = '') {
   db_insert('valhalla_logging')
-      ->fields(array(
-          'time' => date("Y-m-d H:i:s"),
-          'guilty' => $who,
-          'victim' => $to,
-          'action' => $what,
-          'information' => $why))
-      ->execute();
+    ->fields(array(
+      'time' => date("Y-m-d H:i:s"),
+      'guilty' => $who,
+      'victim' => $to,
+      'action' => $what,
+      'information' => $why,
+    ))
+    ->execute();
 }

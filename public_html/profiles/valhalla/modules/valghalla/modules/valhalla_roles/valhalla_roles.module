@@ -1,8 +1,16 @@
 <?php
+
+/**
+ * @file
+ * Valghalla roles module.
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
 function valhalla_roles_node_insert($node) {
   switch ($node->type == 'roles') {
     case 'roles':
-    {
       if (!field_info_field('field_role_n' . $node->nid)) {
         // Create the field base.
         $field = array(
@@ -16,7 +24,8 @@ function valhalla_roles_node_insert($node) {
           'entity_type' => 'field_collection_item',
           'label' => t('Role'),
           'bundle' => 'field_volunteers_pr_pol_st_party',
-          // If you don't set the "required" property then the field wont be required by default.
+          // If you don't set the "required" property
+          // then the field wont be required by default.
           'required' => TRUE,
           'widget' => array(
             'type' => 'custom_type',
@@ -24,15 +33,17 @@ function valhalla_roles_node_insert($node) {
         );
         field_create_instance($instance);
       }
-    }
+      break;
   }
 }
 
+/**
+ * Implements hook_node_insert().
+ */
 function valhalla_roles_node_delete($node) {
   switch ($node->type == 'roles') {
     case 'roles':
-    {
       field_delete_field('field_role_n' . $node->nid);
-    }
+      break;
   }
 }

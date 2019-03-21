@@ -7,6 +7,7 @@
   <file>public_html/profiles/valhalla/modules/valghalla/src</file>
   <file>public_html/profiles/valhalla/modules/valghalla/valghalla.install</file>
   <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_gdpr_dump</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_nemlogin</file>
 
   <!-- External/internal servers and communication -->
   <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_external_server</file>
@@ -28,6 +29,11 @@
   <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_election</file>
   <file>public_html/profiles/valhalla/modules/valghalla/modules/valhalla_blocks</file>
   <file>public_html/profiles/valhalla/modules/valghalla/modules/odin</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valhalla_roles</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valhalla_settings</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valhalla_logging</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_user_tools</file>
+  <file>public_html/profiles/valhalla/modules/valghalla/modules/valghalla_tfa</file>
 
   <exclude-pattern>*.features.*</exclude-pattern>
   <exclude-pattern>*.pages_default.inc</exclude-pattern>
