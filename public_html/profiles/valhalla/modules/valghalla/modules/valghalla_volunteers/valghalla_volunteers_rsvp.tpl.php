@@ -11,11 +11,33 @@
  */
 ?>
 
-<?php if ($is_internet_explorer): ?>
-  <div class="alert alert-warning" role="alert">
-    <strong><?php print t('Vent! Vi kan se at du benytter Internet Explorer.'); ?></strong>
-    <br>
-    <?php print t('Ved tilgang til denne side fra E-boks, oplever flere Internet Explorer brugere at formularen ikke virker.<br><br>Prøv at åbne denne side i en ny fane eller benyt en anden browser såsom Google Chrome eller Firefox.'); ?>
+<?php if ($is_internet_explorer && !isset($_GET['is_opened_in_blank'])): ?>
+  <!--
+    In IE11 and below we are experiencing issues when a user clicks on a link to this
+    page from within their own PDF inline viewer. Apparently this disables some JS which
+    breaks the form functionality.
+
+    SO... when IE is detected we show a modal with a link to open the page in an external
+    tab.
+   -->
+  <div class="blocker">
+    <div class="blocker__modal">
+      <h1><?php print t('Tak!'); ?></h1>
+
+      <div>
+        <p><strong><?php print t('På denne side kan du bekræfte invitationen til valget.'); ?></strong></p>
+        <p><?php print t('Klik på nedenstående knap for at for at fortsætte.'); ?></p>
+      </div>
+
+      <br>
+
+      <div class="text-center">
+        <a href="<?php print $_SERVER['REQUEST_URI']; ?>?is_opened_in_blank=true" class="btn btn-lg btn-secondary" target="_blank">
+          <?php print t('Fortsæt'); ?>
+          <span class="icon fa fa-arrow-right"></span>
+        </a>
+      </div>
+    </div>
   </div>
 <?php endif; ?>
 
