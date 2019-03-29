@@ -32,7 +32,7 @@
       <br>
 
       <div class="text-center">
-        <a href="<?php print $_SERVER['REQUEST_URI']; ?>?is_opened_in_blank=true" class="btn btn-lg btn-secondary" target="_blank">
+        <a href="<?php print $_SERVER['REQUEST_URI']; ?>?is_opened_in_blank=true" class="btn btn-lg btn-secondary" target="_new">
           <?php print t('Fortsæt'); ?>
           <span class="icon fa fa-arrow-right"></span>
         </a>
