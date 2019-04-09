@@ -586,3 +586,53 @@ function _valghalla_helper_get_random_string($len) {
   return $result;
 }
 
+/**
+ * Send email notification with comment to election contact.
+ *
+ * @param FieldCollectionItemEntity $fc
+ * @throws
+ */
+function _valghalla_volunteers_send_rsvp_notification(FieldCollectionItemEntity $fc) {
+  // Get comment.
+  $field_rsvp_comment = field_get_items('field_collection_item', $fc, 'field_rsvp_comment');
+  if (empty($field_rsvp_comment[0]['value'])
+    || empty($fc->hostEntity())) {
+    return;
+  }
+  $rsvp_comment = $field_rsvp_comment[0]['value'];
+
+  // Get election.
+  $field_election = field_get_items('field_collection_item', $fc, 'field_election');
+  if (empty($field_election[0]['target_id'])) {
+    return;
+  }
+  $election_node = node_load($field_election[0]['target_id']);
+
+  // Get e-mail address.
+  $field_email = field_get_items('node', $election_node, 'field_email_address');
+  if (empty($field_email[0]['email'])) {
+    return;
+  }
+  $recipient = $field_email[0]['email'];
+
+  if (!module_exists('valghalla_notifications')) {
+    watchdog('valghalla_volunteers', 'Notifikation blev ikke afsendt. Modulet \"valghalla_notifications\" er ikke aktiveret.', [], WATCHDOG_WARNING);
+    return;
+  }
+
+  $params = array(
+    'subject' => t('Ny tilmelding til !valgtitle', array('!valgtitle' => $election_node->title)),
+    'body' => t('Der er oprettet en ny tilmelding til !valgtitle med kommentaren: !komentar.', array(
+      '!valgtitle' => $election_node->title,
+      '!komentar' => $rsvp_comment,
+    )),
+    'format' => 'html',
+    // We are no going to use token replacement here.
+    'tokens' => array(),
+    'volunteer_nid' => 0,
+    'notification_type' => 'direct',
+  );
+
+  // Send email via notification system.
+  valghalla_notifications_direct_send('mail', $recipient, $params);
+}
