@@ -377,54 +377,6 @@ function valghalla_volunteer_validator_validate(&$volunteer) {
 }
 
 /**
- * Get a volunteers CPR.
- */
-function valghalla_volunteer_validator_get_cpr($volunteer) {
-  ctools_include('plugins');
-  if ($service = variable_get('valghalla_volunteer_validator_cpr_service', FALSE)) {
-    $plugin = ctools_get_plugins('valghalla_volunteer_validator', 'cpr_service', $service);
-
-    if (isset($plugin['get_cpr'])) {
-      if ($field = field_get_items('node', $volunteer, 'field_address_road')) {
-        $volunteer_info['road'] = $field[0]['value'];
-      }
-
-      if ($field = field_get_items('node', $volunteer, 'field_address_road_no')) {
-        $volunteer_info['road_no'] = $field[0]['value'];
-      }
-
-      if ($field = field_get_items('node', $volunteer, 'field_address_floor')) {
-        $volunteer_info['floor'] = $field[0]['value'];
-      }
-
-      if ($field = field_get_items('node', $volunteer, 'field_address_zipcode')) {
-        $volunteer_info['zipcode'] = $field[0]['value'];
-      }
-
-      if ($field = field_get_items('node', $volunteer, 'field_cpr_number')) {
-        $volunteer_info['birthdate'] = substr($field[0]['value'], 0, 6);
-      }
-
-      $volunteer_info['name'] = $volunteer->title;
-
-      $return = call_user_func($plugin['get_cpr'], $volunteer_info);
-      $language = field_language('node', $volunteer, 'field_cpr_number');
-
-      if ($return['status'] == 'success') {
-        $cpr = substr($return['pnr'], 0, 6) . '-' . substr($return['pnr'], 6, 10);
-
-        $volunteer->field_cpr_number[$language][0]['value'] = $cpr;
-      }
-
-      $volunteer->field_cpr_valid_date[$language][0]['value'] = time();
-      $volunteer->field_cpr_status[$language][0]['value'] = $return['status'];
-
-      node_save($volunteer);
-    }
-  }
-}
-
-/**
  * Composes an array of validation configurations saved on election.
  *
  * The party validation configurations can override the election validation

@@ -494,10 +494,6 @@ function valghalla_signup_add_volunteer($volunteer, $polling_station_nid) {
 
   node_save($volunteer_node);
 
-  if (function_exists('valghalla_volunteer_validator_get_cpr')) {
-    valghalla_volunteer_validator_get_cpr($volunteer_node);
-  }
-
   $role_nid = $volunteer['role_nid'];
   $election_nid = variable_get('valghalla_signup_election_nid', FALSE);
   $party_tid = odin_party_tid_for_next_free_seat($election_nid, $polling_station_nid, $role_nid);
