@@ -984,7 +984,7 @@ function valghalla_volunteers_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_email',
     'label' => 'Email',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
