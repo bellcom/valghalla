@@ -94,7 +94,6 @@ function valghalla_external_server_signup_signup_form($form, &$form_state) {
       $cpr = substr($cpr, 0, 6) . '-' . substr($cpr, 6, 4);
     }
   }
-
   if ($cpr) {
     $cpr = valghalla_synch_node_export_get_encrypt($cpr);
   }
@@ -558,6 +557,8 @@ function valghalla_external_server_signup_signup_form_submit($form, &$form_state
   $party_tid = $form_state['party']->tid;
   $role_nid = isset($form_state['role']->nid) ? $form_state['role']->nid : $form_state['values']['role_select'];
   $polling_station_nid = isset($form_state['polling_station']) ? $form_state['polling_station']->nid : $form_state['values']['polling_station_select'];
+  $election = node_load($election_nid);
+  $party = taxonomy_term_load($party_tid);
 
   if ($polling_station_nid && $role_nid && $party_tid && $election_nid) {
     $cpr = $form_state['values']['cpr'];
@@ -586,32 +587,55 @@ function valghalla_external_server_signup_signup_form_submit($form, &$form_state
         $phone_encrypted = valghalla_synch_node_export_get_encrypt($form_state['values']['phone']);
         $volunteer_node->field_phone[LANGUAGE_NONE][]['value'] = $phone_encrypted;
       }
-
-      node_save($volunteer_node);
-      $post_info = valghalla_volunteers_add_volunteer_to_post($volunteer_node->nid, $polling_station_nid, $role_nid, $party_tid, $election_nid, 1);
-      $post = entity_load('field_collection_item', array($post_info['fcid']));
-
-      if ($post) {
-        $post = reset($post);
-        $post->field_rsvp_comment[LANGUAGE_NONE][]['value'] = $form_state['values']['comment'];
-        $post->save();
+      $messages = array();
+      $cpr_decypted = valghalla_synch_node_export_get_decrypt($cpr);
+      // Run validator.
+      if (empty($election) && empty($party)) {
+        $messages = valghalla_volunteer_validator_query_service('validate_cpr', $cpr_decypted);
+        $messages = array_merge($messages, valghalla_volunteer_validator_validate($volunteer_node));
       }
-
-      // Send e-mail to email-address set on election.
-      if (!empty($form_state['values']['comment'])) {
-        _valghalla_volunteers_send_volunteer_comment($post, $form_state['values']['comment']);
+      else {
+        $election_config = valghalla_volunteer_validator_get_election_config($election, $party);
+        $messages = valghalla_volunteer_validator_query_service('validate_cpr_per_election', $cpr_decypted, $election_config);
+        $field_election_date = field_get_items('node', $election, 'field_date');
+        if ($election_config['validate_age'] && !empty($field_election_date[0]['value'])) {
+          $messages = array_merge($messages, valghalla_volunteer_validator_validate_service('validate_per_election', $cpr_decypted, array('election_date' => $field_election_date[0]['value'])));
+        }
       }
+      if (!empty($messages)) {
+        foreach ($messages as $message) {
+          if ($message['status'] === FALSE) {
+            drupal_set_message(t('Det angivne CPR-nummer kan ikke valideres: @text', array('@text' => $message['text'])), 'warning');
+          }
+        }
+      }
+      else {
+        node_save($volunteer_node);
+        $post_info = valghalla_volunteers_add_volunteer_to_post($volunteer_node->nid, $polling_station_nid, $role_nid, $party_tid, $election_nid, 1);
+        $post = entity_load('field_collection_item', array($post_info['fcid']));
 
-      $form_state['redirect'] = array('valghalla/external-signup-success');
-      if (module_exists('nemlogin')) {
-        $form_state['redirect'] = array(
-          'nemlogin/logout',
-          array(
-            'query' => array(
-              'destination' => 'valghalla/external-signup-success',
+        if ($post) {
+          $post = reset($post);
+          $post->field_rsvp_comment[LANGUAGE_NONE][]['value'] = $form_state['values']['comment'];
+          $post->save();
+        }
+
+        // Send e-mail to email-address set on election.
+        if (!empty($form_state['values']['comment'])) {
+          _valghalla_volunteers_send_volunteer_comment($post, $form_state['values']['comment']);
+        }
+
+        $form_state['redirect'] = array('valghalla/external-signup-success');
+        if (module_exists('nemlogin')) {
+          $form_state['redirect'] = array(
+            'nemlogin/logout',
+            array(
+              'query' => array(
+                'destination' => 'valghalla/external-signup-success',
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     }
     else {
