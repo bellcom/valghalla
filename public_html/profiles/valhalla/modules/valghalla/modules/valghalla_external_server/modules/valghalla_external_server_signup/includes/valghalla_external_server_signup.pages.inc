@@ -94,6 +94,7 @@ function valghalla_external_server_signup_signup_form($form, &$form_state) {
       $cpr = substr($cpr, 0, 6) . '-' . substr($cpr, 6, 4);
     }
   }
+
   if ($cpr) {
     $cpr = valghalla_synch_node_export_get_encrypt($cpr);
   }
@@ -589,19 +590,9 @@ function valghalla_external_server_signup_signup_form_submit($form, &$form_state
       }
       $messages = array();
       $cpr_decypted = valghalla_synch_node_export_get_decrypt($cpr);
+
+      $messages = _valghalla_volunteer_validator_cpr_validation($volunteer_node, $election, $party, $cpr_decypted);
       // Run validator.
-      if (empty($election) && empty($party)) {
-        $messages = valghalla_volunteer_validator_query_service('validate_cpr', $cpr_decypted);
-        $messages = array_merge($messages, valghalla_volunteer_validator_validate($volunteer_node));
-      }
-      else {
-        $election_config = valghalla_volunteer_validator_get_election_config($election, $party);
-        $messages = valghalla_volunteer_validator_query_service('validate_cpr_per_election', $cpr_decypted, $election_config);
-        $field_election_date = field_get_items('node', $election, 'field_date');
-        if ($election_config['validate_age'] && !empty($field_election_date[0]['value'])) {
-          $messages = array_merge($messages, valghalla_volunteer_validator_validate_service('validate_per_election', $cpr_decypted, array('election_date' => $field_election_date[0]['value'])));
-        }
-      }
       if (!empty($messages)) {
         foreach ($messages as $message) {
           if ($message['status'] === FALSE) {
