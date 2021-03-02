@@ -99,6 +99,8 @@ function valghalla_external_server_signup_signup_form($form, &$form_state) {
     $cpr = valghalla_synch_node_export_get_encrypt($cpr);
   }
 
+
+
   // Attempt to fetch CPR from form state.
   if (!$cpr && isset($form_state['input'])) {
     if (isset($form_state['input']['cpr'])) {
@@ -593,14 +595,16 @@ function valghalla_external_server_signup_signup_form_submit($form, &$form_state
 
       $messages = _valghalla_volunteer_validator_cpr_validation($volunteer_node, $election, $party, $cpr_decypted);
       // Run validator.
+      $is_cpr_validated = TRUE;
       if (!empty($messages)) {
         foreach ($messages as $message) {
           if ($message['status'] === FALSE) {
             drupal_set_message(t('Det angivne CPR-nummer kan ikke valideres: @text', array('@text' => $message['text'])), 'warning');
+            $is_cpr_validated = FALSE;
           }
         }
       }
-      else {
+      if ($is_cpr_validated) {
         node_save($volunteer_node);
         $post_info = valghalla_volunteers_add_volunteer_to_post($volunteer_node->nid, $polling_station_nid, $role_nid, $party_tid, $election_nid, 1);
         $post = entity_load('field_collection_item', array($post_info['fcid']));
